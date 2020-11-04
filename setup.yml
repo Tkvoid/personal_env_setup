@@ -1,0 +1,41 @@
+version: '3.1'
+
+services:
+
+  redmine:
+    image: redmine
+    restart: always
+    ports:
+      - 8080:3000
+    environment:
+      REDMINE_DB_MYSQL: db
+      REDMINE_DB_PASSWORD: redmine
+      REDMINE_SECRET_KEY_BASE: supersecretkey
+
+  nextcloud:
+    image: nextcloud
+    restart: always
+    ports:
+      - 8090:80
+    environment:
+       MYSQL_HOST: db
+       MYSQL_DATABASE: nextcloud
+       MYSQL_USER: nextcloud
+       MYSQL_PASSWORD: <--yourpwd-->
+    privileged: true
+    volumes:
+       - "./nextcloud:/var/www/html"
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: <--yourpwd-->
+      MYSQL_DATABASE: redmine
+    command:
+       ["mysqld","--character_set_server=utf8"]
+    privileged: true
+    volumes:
+       - "./mysql/db:/var/lib/mysql"
+       - "./mysql/conf/my.cnf:/etc/my.cnf"
+       - "./mysql/init:/docker-entrypoint-initdb.d"
